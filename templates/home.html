@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  {% if is_black_friday_sale %}
+    <div class="alert alert-danger text-center" role="alert">
+      🎉 Winter Sale! Enjoy 40% off on all products! 🛍️
+      <div id="countdown-timer" class="mt-2 text-center">
+        <span id="days" class="badge badge-primary"></span> Days
+        <span id="hours" class="badge badge-primary"></span> Hours
+        <span id="minutes" class="badge badge-primary"></span> Minutes
+        <span id="seconds" class="badge badge-primary"></span> Seconds
+      </div>
+    </div>
+    <script>
+      // Set the countdown date (3 days from now)
+      var countDownDate = new Date();
+      countDownDate.setDate(countDownDate.getDate() + 3);
+      countDownDate = countDownDate.getTime();
+
+      // Update the countdown every second
+      var countdownFunction = setInterval(function () {
+        var now = new Date().getTime();
+        var distance = countDownDate - now;
+
+        // Time calculations
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result
+        document.getElementById("days").innerText = days;
+        document.getElementById("hours").innerText = hours;
+        document.getElementById("minutes").innerText = minutes;
+        document.getElementById("seconds").innerText = seconds;
+
+        // If the countdown is over
+        if (distance < 0) {
+          clearInterval(countdownFunction);
+          document.getElementById("countdown-timer").innerHTML = "Sale Ended!";
+        }
+      }, 1000);
+    </script>
+  {% endif %}
+
+  <section class="section-intro padding-y-sm">
+    <div class="container">
+      <div class="intro-banner-wrap">
+        <img height="320px" width="1200px" src="{% static 'images/banners/cov.png' %}" class="rounded">
+      </div>
+    </div>
+  </section>
+
+  <section class="section-name padding-y-sm">
+    <div class="container">
+      <header class="section-heading">
+        <a href="{% url 'store' %}" class="btn btn-outline-primary float-right">See all</a>
+        <h3 class="section-title">Recommended products</h3>
+      </header>
+
+      <div class="row">
+        {% for p in products %}
+          <div class="col-md-3">
+            <div class="card card-product-grid">
+              <a href="{{ p.get_url }}" class="img-wrap">
+                <img src="{{ p.images.url }}" alt="{{ p.product_name }}" />
+              </a>
+              <figcaption class="info-wrap">
+                <a href="{{ p.get_url }}" class="title">{{ p.product_name }}</a>
+                <div class="price mt-1">
+                  {% if is_black_friday_sale %}
+                    <span class="text-danger">${{ p.price }}</span>
+                    <del class="text-muted">${{ p.original_price }}</del>
+                  {% else %}
+                    ${{ p.price }}
+                  {% endif %}
+                </div>
+                <div class="rating-star mt-1">
+                  <span>
+                    <i class="fa fa-star{% if p.average_rating < 0.5 %}-o{% elif p.average_rating >= 0.5 and p.average_rating < 1 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if p.average_rating < 1.5 %}-o{% elif p.average_rating >= 1.5 and p.average_rating < 2 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if p.average_rating < 2.5 %}-o{% elif p.average_rating >= 2.5 and p.average_rating < 3 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if p.average_rating < 3.5 %}-o{% elif p.average_rating >= 3.5 and p.average_rating < 4 %}-half-o {% endif %}" aria-hidden="true"></i>
+                    <i class="fa fa-star{% if p.average_rating < 4.5 %}-o{% elif p.average_rating >= 4.5 and p.average_rating < 5 %}-half-o {% endif %}" aria-hidden="true"></i>
+                  </span>
+                </div>
+                <div>Remaining Items: {{ p.stock }}</div>
+              </figcaption>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endblock %}
